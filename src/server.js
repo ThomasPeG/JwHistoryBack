@@ -1,11 +1,27 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
 
+// Configuración de CORS
+app.use(cors({
+  origin: ['http://localhost:4200'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 // Middleware para parsear JSON
 app.use(express.json());
+
+// Importar rutas
+const authRoutes = require('./routes/authRoutes');
+const primeraVisitaRoutes = require('./routes/primeraVisitaRoutes');
+
+// Usar rutas
+app.use('/api/auth', authRoutes);
+app.use('/api/primera-visita', primeraVisitaRoutes);
 
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGODB_URI)
@@ -19,6 +35,6 @@ app.get('/', (req, res) => {
 
 // Puerto del servidor
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, (i) => {
   console.log(`Servidor corriendo en el puertos ${PORT}`);
 });
