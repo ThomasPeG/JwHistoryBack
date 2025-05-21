@@ -1,32 +1,31 @@
-const Usuario = require('../models/Usuario');
+const User = require('../models/Usuario');
 const bcrypt = require('bcrypt');
 
 const authController = {
   // Registro de usuario
   registro: async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { email, password, name } = req.body;
 
       // Verificar si el usuario ya existe
-      const usuarioExistente = await Usuario.findOne({ email });
+      const usuarioExistente = await User.findOne({ email });
       if (usuarioExistente) {
-        return res.status(400).json({ mensaje: 'El correo ya está registrado' });
+        return res.status(400).json({ message: 'El correo ya está registrado', usuarioExistente });
       }
-
-      // Generar el hash de la contraseña
-      const salt = await bcrypt.genSalt(10);
-      const passwordHash = await bcrypt.hash(password, salt);
-
-      // Crear nuevo usuario con la contraseña hasheada
-      const usuario = new Usuario({
+      const user = new User({
         email,
-        password: passwordHash
+        password,
+        name
       });
-      await usuario.save();
+      await user.save();
 
-      res.status(201).json({ mensaje: 'Usuario registrado exitosamente' });
+      console.log("Bieeeeeeeeeeen")
+      res.status(201).json({ message: 'Usuario registrado exitosamente',
+        user
+       });
     } catch (error) {
-      res.status(500).json({ mensaje: error.message });
+      console.log("errorrrrrrrrrrr")
+      res.status(500).json({ message: error.message });
     }
   },
 
@@ -36,26 +35,23 @@ const authController = {
       const { email, password } = req.body;
 
       // Buscar usuario
-      const usuario = await Usuario.findOne({ email });
-      if (!usuario) {
-        return res.status(400).json({ mensaje: 'Credenciales inválidas' });
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(400).json({ message: 'Credenciales inválidas' });
       }
 
       // Verificar contraseña usando bcrypt.compare
-      const passwordValida = await bcrypt.compare(password, usuario.password);
+      const passwordValida = await bcrypt.compare(password, user.password);
       if (!passwordValida) {
-        return res.status(400).json({ mensaje: 'Credenciales inválidas' });
+        return res.status(400).json({ message: 'Credenciales inválidas' });
       }
 
       res.json({ 
         mensaje: 'Inicio de sesión exitoso',
-        usuario: {
-          id: usuario._id,
-          email: usuario.email
-        }
+        user
       });
     } catch (error) {
-      res.status(500).json({ mensaje: error.message });
+      res.status(500).json({ message: error.message });
     }
   }
 };

@@ -7,7 +7,7 @@ const app = express();
 
 // Configuración de CORS
 app.use(cors({
-  origin: ['http://localhost:4200'],
+  origin: ['http://localhost:4200', 'https://jwhistory.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -25,9 +25,8 @@ app.use('/api/primera-visita', primeraVisitaRoutes);
 
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Conectado a MongoDBs'))
+  .then(() => console.log('Conectado a MongoDBs', process.env.MONGODB_URI))
   .catch((error) => console.error('Error de conexión a MongoDB:', error));
-
 // Ruta de prueba
 app.get('/', (req, res) => {
   res.json({ mensaje: 'API funcionando correctamente' });

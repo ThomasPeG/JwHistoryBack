@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const usuarioSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
@@ -20,15 +20,15 @@ const usuarioSchema = new mongoose.Schema({
     required: true,
     minlength: [6, 'La contraseña debe tener al menos 6 caracteres']
   },
-  nombre: {
+  name: {
     type: String,
     required: true,
     trim: true
   },
   rol: {
     type: String,
-    enum: ['admin', 'usuario'],
-    default: 'usuario'
+    enum: ['admin', 'user'],
+    default: 'user'
   },
   activo: {
     type: Boolean,
@@ -39,7 +39,7 @@ const usuarioSchema = new mongoose.Schema({
 });
 
 // Middleware para encriptar la contraseña antes de guardar
-usuarioSchema.pre('save', async function(next) {
+userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
   try {
@@ -52,8 +52,8 @@ usuarioSchema.pre('save', async function(next) {
 });
 
 // Método para comparar contraseñas
-usuarioSchema.methods.compararPassword = async function(password) {
+userSchema.methods.compararPassword = async function(password) {
   return await bcrypt.compare(password, this.password);
 };
 
-module.exports = mongoose.model('Usuario', usuarioSchema);
+module.exports = mongoose.model('User', userSchema);

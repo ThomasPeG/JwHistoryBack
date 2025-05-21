@@ -8,7 +8,7 @@ const primeraVisitaController = {
       const visitaGuardada = await nuevaVisita.save();
       res.status(201).json(visitaGuardada);
     } catch (error) {
-      res.status(400).json({ mensaje: error.message });
+      res.status(400).json({ message: error.message });
     }
   },
 
@@ -18,7 +18,7 @@ const primeraVisitaController = {
       const visitas = await PrimeraVisita.find();
       res.json(visitas);
     } catch (error) {
-      res.status(500).json({ mensaje: error.message });
+      res.status(500).json({ message: error.message });
     }
   },
 
@@ -27,11 +27,11 @@ const primeraVisitaController = {
     try {
       const visita = await PrimeraVisita.findById(req.params.id);
       if (!visita) {
-        return res.status(404).json({ mensaje: 'Visita no encontrada' });
+        return res.status(404).json({ message: 'Visita no encontrada' });
       }
       res.json(visita);
     } catch (error) {
-      res.status(500).json({ mensaje: error.message });
+      res.status(500).json({ message: error.message });
     }
   }
 };
