@@ -47,7 +47,7 @@ const authController = {
       }
 
       res.json({ 
-        mensaje: 'Inicio de sesión exitoso',
+        mensaje: 'Inicio de sesión exitosos',
         user
       });
     } catch (error) {
