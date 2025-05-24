@@ -17,11 +17,11 @@ app.use(express.json());
 
 // Importar rutas
 const authRoutes = require('./routes/authRoutes');
-const primeraVisitaRoutes = require('./routes/primeraVisitaRoutes');
+const visitRoutes = require('./routes/visitRoutes');
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
-app.use('/api/primera-visita', primeraVisitaRoutes);
+app.use('/api/visits', visitRoutes);
 
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGODB_URI)
