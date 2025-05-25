@@ -21,7 +21,7 @@ const visitRoutes = require('./routes/visitRoutes');
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
-app.use('/api/visits', visitRoutes);
+app.use('/api/amo', visitRoutes);
 
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGODB_URI)

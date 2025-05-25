@@ -1,32 +1,12 @@
 const mongoose = require('mongoose');
 
 const visitSchema = new mongoose.Schema({
-  userId: {
+  amoId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  date: {
-    type: Date,
-    required: true,
-    default: Date.now
-  },
-  names: {
-    type: String,
-    required: true
+    ref: 'Amo',
   },
   initialQuestion: {
-    type: String,
-    required: true
-  },
-  address: {
-    type: String,
-    required: true
-  },
-  personType: {
-    type: String,
-    required: true,
-    enum: ['ateo', 'cristiano', 'catolico']
+    type: String
   },
   ownerConcern: {
     type: String
@@ -38,20 +18,17 @@ const visitSchema = new mongoose.Schema({
     type: String
   },
   duration: {
-    type: Number,  // duración en minutos
-    required: true
+    type: Number
   },
   notes: {
     type: String
   },
+  date: {
+    type: Date,
+  },
   nextVisitDate: {
     type: Date
   },
-  status: {
-    type: String,
-    enum: ['active', 'inactive', 'completed'],
-    default: 'active'
-  }
 }, {
   timestamps: true
 });

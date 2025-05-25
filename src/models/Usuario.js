@@ -33,7 +33,11 @@ const userSchema = new mongoose.Schema({
   activo: {
     type: Boolean,
     default: true
-  }
+  },
+  amo: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Amo'
+  }]
 }, {
   timestamps: true // Esto añadirá createdAt y updatedAt automáticamente
 });
