@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const Visit = require('./Visit');
 
 const amoSchema = new mongoose.Schema({
   userId: {
@@ -11,7 +10,7 @@ const amoSchema = new mongoose.Schema({
   },
   personType: {
     type: String,
-    enum: ['ateo', 'cristiano', 'catolico']
+    enum: ['ateo', 'cristiano', 'catolico', 'otro']
   },
   personalData: {
     type: String

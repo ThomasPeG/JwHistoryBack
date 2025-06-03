@@ -1,10 +1,14 @@
 const Amo = require('../models/Amo');
 const User = require('../models/Usuario');
-const Visit = require('../models/Visit');
+const Visit = require('../models/visit');
+const MonthlyStats = require('../models/MonthlyStats');
+
+// Función auxiliar para actualizar estadísticas mensuales
+
 
 const visitController = {
   // Crear un nuevo Amo con su primera visita
-  createVisit: async (req, res) => {
+  createAmoByUserId: async (req, res) => {
     try {
       const { userId } = req.params;
       const {
@@ -14,13 +18,7 @@ const visitController = {
         personType,
         personalData,
         // Datos de la visita
-        initialQuestion,
-        ownerConcern,
-        pendingQuestion,
-        duration,
-        notes,
-        nextVisitDate,
-        date
+        visit
       } = req.body;
       console.log(req.body);
       
@@ -38,31 +36,33 @@ const visitController = {
         personType,
         personalData
       });
-
       // Crear la visita
-      const visit = new Visit({
-        initialQuestion,
-        ownerConcern,
-        pendingQuestion,
-        duration,
-        notes,
-        nextVisitDate,
-        date
+      const visita = new Visit({
+        initialQuestion : visit.initialQuestion,
+        ownerConcern : visit.ownerConcern,
+        pendingQuestion : visit.pendingQuestion,
+        duration : visit.duration,
+        notes : visit.notes,
+        nextVisitDate : visit.nextVisitDate,
+        date : visit.date,
+        amoId: amo._id
       });
-
-      // Guardar la visita
-      await visit.save();
-
+      
+      // En la función createAmoByUserId, después de guardar la visita:
+      await visita.save();
+      
+      // Actualizar estadísticas mensuales
+      await updateMonthlyStats(visita, userId, amo._id, false);
+      
       // Agregar el ID de la visita al array de visits del Amo
-      amo.visit.push(visit._id);
-
+      amo.visit.push(visita._id);
+      
       // Guardar el Amo
       await amo.save();
-      console.log(amo);
+
       res.status(201).json({ 
         message: 'Amo y visita registrados exitosamente', 
-        amo,
-        visit 
+        amo
       });
     } catch (error) {
       console.error(error);
@@ -71,7 +71,7 @@ const visitController = {
   },
 
   // Obtener todas las visitas de un usuario
-  getUserVisits: async (req, res) => {
+  getAmosByUserId: async (req, res) => {
     try {
       const { userId } = req.params;
       const amos = await Amo.find({ userId })
@@ -84,7 +84,7 @@ const visitController = {
   },
 
   // Actualizar una visita
-  updateVisit: async (req, res) => {
+  updateAmo: async (req, res) => {
     try {
       const { id } = req.params;
       const updateData = req.body;
@@ -106,7 +106,7 @@ const visitController = {
   },
 
   // Eliminar una visita
-  deleteVisit: async (req, res) => {
+  deleteAmo: async (req, res) => {
     try {
       const { id } = req.params;
       const visit = await Visit.findByIdAndDelete(id);
@@ -128,7 +128,7 @@ const visitController = {
   },
 
   // Crear una nueva visita para un Amo existente
-  createRevisit: async (req, res) => {
+  createVisitAmoById: async (req, res) => {
     try {
       const { amoId } = req.params;
       const {
@@ -143,13 +143,13 @@ const visitController = {
 
       // Verificar si el Amo existe
       const amo = await Amo.findById(amoId);
-      console.log(amo);
       if (!amo) {
         return res.status(404).json({ message: 'Amo no encontrado' });
       }
 
       // Crear la nueva visita
       const visit = new Visit({
+        amoId : amo._id,
         initialQuestion,
         ownerConcern,
         pendingQuestion,
@@ -159,8 +159,11 @@ const visitController = {
         date
       });
 
-      // Guardar la visita
+      // En la función createVisitAmoById, después de guardar la visita:
       await visit.save();
+      
+      // Actualizar estadísticas mensuales
+      await updateMonthlyStats(visit, amo.userId, amoId, true);
 
       // Agregar el ID de la visita al array de visits del Amo
       amo.visit.push(visit._id);
@@ -170,13 +173,140 @@ const visitController = {
 
       res.status(201).json({ 
         message: 'Nueva visita registrada exitosamente', 
-        visit,
-        amo
+        visit
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   },
-};
 
+  // Obtener un Amo por su ID
+  getAmoById: async (req, res) => {
+    try {
+      const { amoId } = req.params;
+      
+      // Buscar el Amo por su ID y popular las visitas relacionadas
+      const amo = await Amo.findById(amoId).populate('visit');
+      
+      if (!amo) {
+        return res.status(404).json({ message: 'Amo no encontrado' });
+      }
+      
+      res.json(amo);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+
+
+  // Obtener estadísticas mensuales para un usuario
+  getMonthlyStats: async (req, res) => {
+    try {
+      const { userId, year, month } = req.params;
+      
+      let query = { userId };
+      
+      if (year) {
+        query.year = parseInt(year);
+      }
+      
+      if (month) {
+        query.month = parseInt(month);
+      }
+      const stats = await MonthlyStats.find(query).sort({ year: -1, month: -1 });
+      
+      res.json(stats[0]);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  // Obtener resumen de estadísticas anuales
+  getYearlyStatsSummary: async (req, res) => {
+    try {
+      const { userId, year } = req.params;
+      
+      const stats = await MonthlyStats.find({ userId, year: parseInt(year) })
+        .sort({ month: 1 });
+      
+      // Calcular totales anuales
+      const yearlyTotal = {
+        totalVisits: 0,
+        totalRevisits: 0,
+        totalMinutes: 0,
+        monthlyBreakdown: []
+      };
+      
+      stats.forEach(month => {
+        yearlyTotal.totalVisits += month.totalVisits;
+        yearlyTotal.totalRevisits += month.totalRevisits || 0;
+        yearlyTotal.totalMinutes += month.totalMinutes;
+        
+        yearlyTotal.monthlyBreakdown.push({
+          month: month.month,
+          visits: month.totalVisits,
+          revisits: month.totalRevisits || 0,
+          minutes: month.totalMinutes
+        });
+      });
+      
+      res.json(yearlyTotal);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: error.message });
+    }
+  }
+};
+const updateMonthlyStats = async (visit, userId, amoId, isRevisit = false) => {
+  try {
+    const visitDate = new Date(visit.date);
+    const year = visitDate.getFullYear();
+    const month = visitDate.getMonth() + 1; // getMonth() devuelve 0-11
+    
+    // Buscar o crear estadísticas para este mes
+    let monthlyStats = await MonthlyStats.findOne({ userId, year, month });
+    
+    if (!monthlyStats) {
+      monthlyStats = new MonthlyStats({
+        userId,
+        year,
+        month,
+        totalVisits: 0,
+        totalRevisits: 0,
+        totalMinutes: 0,
+        visitDetails: []
+      });
+    }
+    
+    // Actualizar estadísticas según si es primera visita o revisita
+    if (isRevisit) {
+      // Si es una revisita, incrementar totalRevisits
+      monthlyStats.totalRevisits += 1;
+    } else {
+      // Si es primera visita, incrementar totalVisits
+      monthlyStats.totalVisits += 1;
+    }
+    
+    // Actualizar la duración total en cualquier caso
+    monthlyStats.totalMinutes += visit.duration || 0;
+    
+    // Añadir detalles de la visita
+    monthlyStats.visitDetails.push({
+      visitId: visit._id,
+      amoId,
+      duration: visit.duration || 0,
+      date: visit.date,
+      isRevisit
+    });
+    
+    await monthlyStats.save();
+    return monthlyStats;
+  } catch (error) {
+    console.error('Error al actualizar estadísticas mensuales:', error);
+    throw error;
+  }
+};
 module.exports = visitController;

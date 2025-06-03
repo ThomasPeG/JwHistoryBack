@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-const app = express();
+const app = express(); 
 
 // Configuración de CORS
 app.use(cors({
-  origin: ['http://localhost:4200', 'https://jwhistory.netlify.app'],
+  origin: ['http://localhost:8100', 'https://jwhistory.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -18,10 +18,12 @@ app.use(express.json());
 // Importar rutas
 const authRoutes = require('./routes/authRoutes');
 const visitRoutes = require('./routes/visitRoutes');
+const statsRoutes = require('./routes/statsRoutes');
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/amo', visitRoutes);
+app.use('/api/stats', statsRoutes);
 
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGODB_URI)

@@ -6,16 +6,16 @@ const visitSchema = new mongoose.Schema({
     ref: 'Amo',
   },
   initialQuestion: {
-    type: String
+    type: String,
+    default: ''
   },
   ownerConcern: {
-    type: String
-  },
-  personalData: {
-    type: String
+    type: String,
+    default: ''
   },
   pendingQuestion: {
-    type: String
+    type: String,
+    default: ''
   },
   duration: {
     type: Number
