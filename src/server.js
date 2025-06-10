@@ -1,21 +1,38 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
+const cors = require('cors'); // Puedes mantener esta importación para usarla en rutas específicas si lo necesitas
 require('dotenv').config();
 
 const app = express(); 
 
-// Configuración de CORS
-app.use(cors({
-  origin: ['http://localhost:8100', 'https://jw-history.netlify.app', 'capacitor://*', 'ionic://*'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  optionsSuccessStatus: 204
-}));
-
-// Middleware adicional para manejar preflight OPTIONS
-app.options('*', cors());
+// Middleware personalizado para CORS
+app.use((req, res, next) => {
+  // Permitir cualquier origen
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  
+  // O si prefieres especificar orígenes concretos:
+  // const allowedOrigins = ['http://localhost:8100', 'https://jw-history.netlify.app'];
+  // const origin = req.headers.origin;
+  // if (allowedOrigins.includes(origin)) {
+  //   res.setHeader('Access-Control-Allow-Origin', origin);
+  // }
+  
+  // Permitir métodos HTTP específicos
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  
+  // Permitir encabezados específicos
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  
+  // Permitir credenciales
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  
+  // Manejar solicitudes preflight OPTIONS
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+  
+  next();
+});
 
 // Middleware para parsear JSON
 app.use(express.json());
