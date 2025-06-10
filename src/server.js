@@ -31,7 +31,7 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch((error) => console.error('Error de conexión a MongoDB:', error));
 // Ruta de prueba
 app.get('/', (req, res) => {
-  res.json({ mensaje: 'API funcionando correctamente' });
+  res.json({ mensaje: 'API funcionando correctamente Bien' });
 });
 
 // Puerto del servidor

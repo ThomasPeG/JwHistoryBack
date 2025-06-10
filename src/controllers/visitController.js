@@ -1,6 +1,6 @@
 const Amo = require('../models/Amo');
 const User = require('../models/Usuario');
-const Visit = require('../models/visit');
+const Visit = require('../models/Visit');
 const MonthlyStats = require('../models/MonthlyStats');
 
 // Función auxiliar para actualizar estadísticas mensuales
