@@ -7,7 +7,8 @@ const app = express();
 
 // Configuración de CORS
 app.use(cors({
-  origin: ['http://localhost:8100', 'capacitor://*', 'ionic://*', 'https://jwhistory.netlify.app'],
+  origin: ['*'],
+  // origin: ['http://localhost:8100', 'capacitor://*', 'ionic://*', 'https://jwhistory.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
