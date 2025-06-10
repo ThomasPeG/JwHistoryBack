@@ -7,11 +7,15 @@ const app = express();
 
 // Configuración de CORS
 app.use(cors({
-  origin: ['*'],
-  // origin: ['http://localhost:8100', 'capacitor://*', 'ionic://*', 'https://jwhistory.netlify.app'],
+  origin: ['http://localhost:8100', 'https://jw-history.netlify.app', 'capacitor://*', 'ionic://*'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 204
 }));
+
+// Middleware adicional para manejar preflight OPTIONS
+app.options('*', cors());
 
 // Middleware para parsear JSON
 app.use(express.json());
