@@ -7,12 +7,15 @@ const app = express();
 
 // Middleware personalizado para CORS
 app.use((req, res, next) => {
+  // Permitir cualquier origen
+  res.setHeader("Access-Control-Allow-Origin", "*");
   
-  const allowedOrigins = ['http://localhost:8100', 'https://jw-history.netlify.app, capacitor://*', 'ionic://*'];
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
+  // O si prefieres especificar orígenes concretos:
+  // const allowedOrigins = ['http://localhost:8100', 'https://jw-history.netlify.app'];
+  // const origin = req.headers.origin;
+  // if (allowedOrigins.includes(origin)) {
+  //   res.setHeader('Access-Control-Allow-Origin', origin);
+  // }
   
   // Permitir métodos HTTP específicos
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
